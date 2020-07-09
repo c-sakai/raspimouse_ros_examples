@@ -63,6 +63,18 @@ class ObjectTracker():
     def _object_is_smaller_than_default(self):
         return self._object_pixels_ratio() < -0.01
 
+    def _set_color_red1(self):
+        # [H(0~180), S(0~255), V(0~255)]
+        min_hsv_red1 = np.array([0, 70, 50])
+        max_hsv_red1 = np.array([10, 255, 255])
+        return min_hsv_red1, max_hsv_red1
+
+    def _set_color_red2(self):
+        # [H(0~180), S(0~255), V(0~255)]
+        min_hsv_red2 = np.array([170, 70, 50])
+        max_hsv_red2 = np.array([180, 255, 255])
+        return min_hsv_red2, max_hsv_red2    
+    
     def _set_color_orange(self):
         # [H(0~180), S(0~255), V(0~255)]
         min_hsv_orange = np.array([15, 200, 80])
@@ -83,12 +95,16 @@ class ObjectTracker():
         if cv_image is None:
             return None
 
-        min_hsv, max_hsv = self._set_color_orange()
+        min_hsv1, max_hsv1 = self._set_color_red1()
+        min_hsv2, max_hsv2 = self._set_color_red2()
+        #min_hsv, max_hsv = self._set_color_orange()
         # min_hsv, max_hsv = self._set_color_green()
         # min_hsv, max_hsv = self._set_color_blue()
 
         hsv = cv2.cvtColor(cv_image, cv2.COLOR_BGR2HSV)
-        binary = cv2.inRange(hsv, min_hsv, max_hsv)
+        binary1 = cv2.inRange(hsv, min_hsv1, max_hsv1)
+        binary2 = cv2.inRange(hsv, min_hsv2, max_hsv2)
+        binary = binary1 + binary2
         # Morphology
         kernel = np.ones((5, 5), np.uint8)
         binary = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, kernel, iterations = 2)
